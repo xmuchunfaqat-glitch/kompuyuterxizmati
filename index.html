@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KompYordam — Raqamli Yordamchi</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f1a;
+  --surface: #131628;
+  --surface2: #1a1e35;
+  --border: rgba(255,255,255,0.07);
+  --gold: #f0c060;
+  --gold2: #e8a030;
+  --teal: #00e5c8;
+  --blue: #4f8ef7;
+  --pink: #ff6b9d;
+  --green: #00e096;
+  --text: #f0f2ff;
+  --text2: #8890b8;
+  --text3: #3a3f5c;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden;cursor:none}
+
+.cursor{width:12px;height:12px;background:var(--gold);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transition:transform 0.15s;mix-blend-mode:difference}
+.cursor-ring{width:36px;height:36px;border:1.5px solid var(--gold);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transition:all 0.3s;opacity:0.5}
+
+.bg-orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;animation:orbFloat 8s ease-in-out infinite}
+.orb1{width:500px;height:500px;background:rgba(240,192,96,0.06);top:-100px;right:-100px}
+.orb2{width:400px;height:400px;background:rgba(0,229,200,0.05);bottom:100px;left:-100px;animation-delay:3s}
+.orb3{width:300px;height:300px;background:rgba(79,142,247,0.04);top:40%;left:40%;animation-delay:5s}
+@keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-30px) scale(1.05)}}
+
+.bg-text{position:fixed;font-family:'Playfair Display',serif;font-size:clamp(80px,15vw,180px);font-weight:900;color:rgba(255,255,255,0.012);white-space:nowrap;pointer-events:none;z-index:0;line-height:1;user-select:none}
+.bg-text-1{top:5%;left:-5%;transform:rotate(-5deg)}
+.bg-text-2{bottom:15%;right:-5%;transform:rotate(3deg);color:rgba(240,192,96,0.025)}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(13,15,26,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-since{font-size:11px;color:var(--text2);font-weight:500;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.nav-since::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.nav-tg{background:linear-gradient(135deg,#229ED9,#1a7fad);color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:6px;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 4px 20px rgba(34,158,217,0.3)}
+.nav-tg:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(34,158,217,0.4)}
+
+section,.hero-wrap{position:relative;z-index:1}
+
+.hero-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 24px 60px;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(240,192,96,0.1);border:1px solid rgba(240,192,96,0.25);padding:8px 18px;border-radius:30px;font-size:12px;font-weight:700;color:var(--gold);letter-spacing:0.5px;margin-bottom:28px;animation:fadeDown 0.6s ease both}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:blink 1.5s infinite}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(36px,8vw,72px);font-weight:900;line-height:1.05;letter-spacing:-1.5px;margin-bottom:20px;animation:fadeDown 0.6s 0.1s ease both}
+.hero-title .line2{display:block;background:linear-gradient(135deg,var(--gold) 0%,var(--pink) 50%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:200% auto;animation:shimmer 4s linear infinite}
+@keyframes shimmer{0%{background-position:0% center}100%{background-position:200% center}}
+.hero-sub{font-size:clamp(14px,2.5vw,18px);color:var(--text2);max-width:540px;line-height:1.7;margin:0 auto 36px;animation:fadeDown 0.6s 0.2s ease both}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:48px;animation:fadeDown 0.6s 0.3s ease both}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0d0f1a;padding:15px 32px;border-radius:14px;font-size:15px;font-weight:800;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 8px 32px rgba(240,192,96,0.3);text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-gold:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(240,192,96,0.4)}
+.btn-outline{background:transparent;color:var(--text);padding:15px 32px;border-radius:14px;font-size:15px;font-weight:700;border:1.5px solid var(--border);cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);background:rgba(240,192,96,0.05)}
+
+.trust-strip{display:flex;gap:32px;flex-wrap:wrap;justify-content:center;animation:fadeDown 0.6s 0.4s ease both}
+.trust-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2)}
+.trust-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.trust-icon.gold{background:rgba(240,192,96,0.12)}
+.trust-icon.teal{background:rgba(0,229,200,0.1)}
+.trust-icon.blue{background:rgba(79,142,247,0.1)}
+.trust-item strong{color:var(--text);font-weight:700}
+
+.scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,var(--gold),transparent);animation:scrollPulse 2s ease-in-out infinite}
+@keyframes scrollPulse{0%,100%{opacity:0.3}50%{opacity:1}}
+
+.sec-wrap{padding:60px 24px;max-width:900px;margin:0 auto}
+.sec-header{text-align:center;margin-bottom:48px}
+.sec-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.sec-title{font-family:'Playfair Display',serif;font-size:clamp(28px,5vw,42px);font-weight:900;color:var(--text);line-height:1.15;letter-spacing:-0.5px}
+.sec-sub{font-size:15px;color:var(--text2);margin-top:12px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px 20px;position:relative;overflow:hidden;transition:transform 0.2s,border-color 0.2s;animation:fadeUp 0.5s ease both}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card.s1::before{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.stat-card.s2::before{background:linear-gradient(90deg,var(--teal),var(--blue))}
+.stat-card.s3::before{background:linear-gradient(90deg,var(--pink),#ff4757)}
+.stat-card.s4::before{background:linear-gradient(90deg,var(--blue),#a855f7)}
+.stat-card:hover{transform:translateY(-4px);border-color:rgba(240,192,96,0.2)}
+.stat-num{font-family:'Playfair Display',serif;font-size:42px;font-weight:900;line-height:1;margin-bottom:6px}
+.stat-card.s1 .stat-num{color:var(--gold)}
+.stat-card.s2 .stat-num{color:var(--teal)}
+.stat-card.s3 .stat-num{color:var(--pink)}
+.stat-card.s4 .stat-num{color:var(--blue)}
+.stat-label{font-size:13px;color:var(--text2);font-weight:500}
+.stat-since{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* SERVICES */
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.srv-card{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:28px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden;animation:fadeUp 0.5s ease both}
+.srv-card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,0.15)}
+.srv-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.srv-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.c1 .srv-icon{background:rgba(0,229,200,0.12)}
+.c2 .srv-icon{background:rgba(79,142,247,0.12)}
+.c3 .srv-icon{background:rgba(240,192,96,0.12)}
+.c4 .srv-icon{background:rgba(255,107,157,0.12)}
+.c5 .srv-icon{background:rgba(168,85,247,0.12)}
+.srv-arrow{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:14px;transition:all 0.2s}
+.srv-card:hover .srv-arrow{border-color:var(--gold);color:var(--gold);background:rgba(240,192,96,0.1)}
+.srv-name{font-size:17px;font-weight:800;color:var(--text);margin-bottom:8px;letter-spacing:-0.3px}
+.srv-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px}
+.srv-footer{display:flex;align-items:center;justify-content:space-between}
+.srv-price{font-size:15px;font-weight:800;color:var(--text)}
+.srv-price span{font-size:11px;color:var(--text2);font-weight:400}
+.srv-time{font-size:11px;color:var(--text2);background:var(--surface2);padding:4px 10px;border-radius:8px}
+.srv-ai-badge{position:absolute;top:16px;right:60px;background:rgba(0,224,150,0.15);border:1px solid rgba(0,224,150,0.3);color:var(--green);font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:0.5px}
+
+/* STEPS */
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.step-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;animation:fadeUp 0.5s ease both;transition:border-color 0.2s}
+.step-card:hover{border-color:rgba(240,192,96,0.3)}
+.step-num{font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:rgba(240,192,96,0.12);line-height:1;margin-bottom:12px}
+.step-icon{font-size:28px;margin-bottom:12px;display:block}
+.step-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
+.step-desc{font-size:13px;color:var(--text2);line-height:1.5}
+
+/* TESTIMONIALS */
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.testi-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;animation:fadeUp 0.5s ease both;transition:border-color 0.2s}
+.testi-card:hover{border-color:rgba(240,192,96,0.2)}
+.testi-stars{color:var(--gold);font-size:14px;margin-bottom:12px;letter-spacing:2px}
+.testi-text{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:16px;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:10px}
+.testi-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:var(--surface2)}
+.testi-name{font-size:13px;font-weight:700;color:var(--text)}
+.testi-role{font-size:11px;color:var(--text2)}
+
+/* PORTFOLIO */
+.portfolio-link{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,rgba(240,192,96,0.08),rgba(0,229,200,0.05));border:1px solid rgba(240,192,96,0.25);border-radius:24px;padding:28px 36px;text-decoration:none;max-width:500px;margin:0 auto;transition:all 0.3s}
+.portfolio-link:hover{transform:translateY(-4px);border-color:rgba(240,192,96,0.5)}
+.portfolio-icon{width:60px;height:60px;border-radius:18px;background:rgba(34,158,217,0.15);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+
+/* CTA */
+.cta-box{background:linear-gradient(135deg,rgba(240,192,96,0.08) 0%,rgba(0,229,200,0.05) 50%,rgba(79,142,247,0.08) 100%);border:1px solid rgba(240,192,96,0.2);border-radius:28px;padding:48px 32px;position:relative;overflow:hidden;text-align:center}
+.cta-title{font-family:'Playfair Display',serif;font-size:clamp(24px,5vw,38px);font-weight:900;color:var(--text);margin-bottom:14px;letter-spacing:-0.5px}
+.cta-sub{font-size:15px;color:var(--text2);margin-bottom:32px;line-height:1.6}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.contact-pill{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:50px;font-size:14px;font-weight:700;text-decoration:none;transition:all 0.2s;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif}
+.contact-pill.tg{background:#229ED9;color:#fff;box-shadow:0 8px 24px rgba(34,158,217,0.3)}
+.contact-pill.tg:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(34,158,217,0.4)}
+.contact-pill.gold-pill{background:rgba(240,192,96,0.1);color:var(--gold);border:1.5px solid rgba(240,192,96,0.3)}
+.contact-pill.gold-pill:hover{background:rgba(240,192,96,0.15);transform:translateY(-3px)}
+
+footer{position:relative;z-index:1;background:var(--surface);border-top:1px solid var(--border);padding:28px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.footer-copy{font-size:12px;color:var(--text3)}
+.footer-since{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px;background:rgba(0,229,200,0.08);border:1px solid rgba(0,229,200,0.15);padding:5px 12px;border-radius:20px}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(5,7,15,0.9);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid rgba(240,192,96,0.2);border-radius:24px;width:100%;max-width:500px;max-height:92vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,0.6);animation:modalPop 0.3s cubic-bezier(0.34,1.56,0.64,1) both}
+@keyframes modalPop{from{opacity:0;transform:scale(0.9) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-header{padding:24px 24px 0;display:flex;justify-content:space-between;align-items:flex-start}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:var(--text)}
+.modal-close{width:34px;height:34px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.modal-close:hover{background:rgba(255,107,107,0.15);color:var(--pink)}
+.modal-body{padding:20px 24px 28px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.field input,.field textarea,.field select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(240,192,96,0.1)}
+.field textarea{resize:vertical;min-height:80px}
+
+/* STEPS IN MODAL */
+.modal-steps{display:flex;gap:0;margin-bottom:24px;background:var(--surface2);border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+.modal-step{flex:1;padding:12px 8px;text-align:center;font-size:11px;font-weight:700;color:var(--text3);cursor:default;transition:all 0.3s;border-right:1px solid var(--border);position:relative}
+.modal-step:last-child{border-right:none}
+.modal-step.active{background:rgba(240,192,96,0.12);color:var(--gold)}
+.modal-step.done{background:rgba(0,224,150,0.08);color:var(--green)}
+.modal-step-num{font-size:18px;display:block;margin-bottom:3px}
+
+/* AI RESULT BOX */
+.ai-result-box{background:var(--surface2);border:1px solid rgba(0,229,200,0.2);border-radius:12px;padding:16px;margin:12px 0;font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;max-height:200px;overflow-y:auto;display:none}
+.ai-result-box.show{display:block;animation:fadeUp 0.3s ease}
+.ai-loading{display:none;align-items:center;gap:10px;padding:12px;color:var(--text2);font-size:13px}
+.ai-loading.show{display:flex}
+.ai-dots span{width:7px;height:7px;border-radius:50%;background:var(--teal);display:inline-block;animation:typeDot 1.2s infinite}
+.ai-dots span:nth-child(2){animation-delay:0.2s}
+.ai-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes typeDot{0%,60%,100%{transform:translateY(0);opacity:0.3}30%{transform:translateY(-6px);opacity:1}}
+
+/* PAYMENT BOX */
+.payment-box{background:linear-gradient(135deg,rgba(240,192,96,0.06),rgba(0,229,200,0.04));border:1px solid rgba(240,192,96,0.2);border-radius:16px;padding:20px;margin:16px 0}
+.payment-title{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-display{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
+.card-number{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;color:var(--gold);letter-spacing:2px;margin-bottom:4px}
+.card-owner{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.payment-apps{display:flex;gap:10px;margin-bottom:14px}
+.pay-app-btn{flex:1;padding:12px;border-radius:12px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s}
+.pay-app-btn.click-btn{background:linear-gradient(135deg,#00AAFF,#0077CC);color:#fff;box-shadow:0 4px 16px rgba(0,170,255,0.25)}
+.pay-app-btn.paynet-btn{background:linear-gradient(135deg,#FF6B00,#cc5500);color:#fff;box-shadow:0 4px 16px rgba(255,107,0,0.25)}
+.pay-app-btn:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.amount-display{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--text2)}
+.amount-val{font-size:20px;font-weight:800;color:var(--green)}
+.copy-btn{background:rgba(240,192,96,0.1);border:1px solid rgba(240,192,96,0.25);color:var(--gold);padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif}
+.copy-btn:hover{background:rgba(240,192,96,0.2)}
+
+/* CONFIRM PAYMENT */
+.confirm-section{display:none}
+.confirm-section.show{display:block}
+.screenshot-upload{width:100%;border:2px dashed rgba(240,192,96,0.3);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all 0.2s;background:rgba(240,192,96,0.02);margin-bottom:14px}
+.screenshot-upload:hover{border-color:var(--gold);background:rgba(240,192,96,0.05)}
+.screenshot-upload input{display:none}
+
+/* SUBMIT BTN */
+.submit-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0d0f1a;border:none;border-radius:14px;padding:15px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.2s;box-shadow:0 8px 24px rgba(240,192,96,0.25)}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(240,192,96,0.35)}
+.submit-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+.submit-btn.green-btn{background:linear-gradient(135deg,var(--green),#00b87a);box-shadow:0 8px 24px rgba(0,224,150,0.25)}
+
+.divider{height:1px;background:var(--border);margin:18px 0}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:14px 24px;font-size:14px;font-weight:600;z-index:9999;display:flex;align-items:center;gap:10px;box-shadow:0 16px 48px rgba(0,0,0,0.5);animation:toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap}
+.toast.success{border-color:rgba(0,229,200,0.4);color:var(--teal)}
+.toast.error{border-color:rgba(255,107,107,0.4);color:var(--pink)}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(20px) scale(0.9)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+
+@keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:600px){nav{padding:14px 16px}.nav-since{display:none}.hero-actions{flex-direction:column;align-items:center}.btn-gold,.btn-outline{width:100%;justify-content:center}footer{flex-direction:column;text-align:center}.payment-apps{flex-direction:column}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--text3);border-radius:10px}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="bg-orb orb1"></div>
+<div class="bg-orb orb2"></div>
+<div class="bg-orb orb3"></div>
+<div class="bg-text bg-text-1">BILIM</div>
+<div class="bg-text bg-text-2">MUVAFFAQIYAT</div>
+
+<nav>
+  <div class="nav-logo">KompYordam</div>
+  <div class="nav-since">● Faoliyat: 2023 yildan</div>
+  <a href="https://t.me/Jasurbek_Mansurbekovich" target="_blank" class="nav-tg">✈️ Bog'lanish</a>
+</nav>
+
+<div class="hero-wrap">
+  <div class="hero-badge"><div class="dot"></div> O'zbekiston #1 Kompyuter Xizmati</div>
+  <h1 class="hero-title">
+    <span>Har qanday kompyuter</span>
+    <span class="line2">ishini hal qilamiz</span>
+  </h1>
+  <p class="hero-sub">Excel, Word, PowerPoint, Referat — AI yordamida tez, sifatli, arzon. Talabalar va kompyuter tushunmaydiganlar uchun maxsus platforma.</p>
+  <div class="hero-actions">
+    <button class="btn-gold" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">Xizmatlarni ko'rish →</button>
+    <a href="https://t.me/Jasurbek_Mansurbekovich" target="_blank" class="btn-outline">✈️ Telegram orqali</a>
+  </div>
+  <div class="trust-strip">
+    <div class="trust-item"><div class="trust-icon gold">⚡</div><div><strong>2 soat</strong> ichida tayyor</div></div>
+    <div class="trust-item"><div class="trust-icon teal">🤖</div><div><strong>AI</strong> yordamida</div></div>
+    <div class="trust-item"><div class="trust-icon blue">💳</div><div>Ish tugagandan <strong>so'ng to'lov</strong></div></div>
+  </div>
+  <div class="scroll-hint"><div class="scroll-line"></div>PASTGA</div>
+</div>
+
+<!-- STATS -->
+<section class="sec-wrap">
+  <div class="stats-grid">
+    <div class="stat-card s1"><div class="stat-num">500+</div><div class="stat-label">Bajarilgan ish</div><div class="stat-since">Since 2023</div></div>
+    <div class="stat-card s2"><div class="stat-num">4.9</div><div class="stat-label">★ Mijoz baholari</div><div class="stat-since">200+ sharh</div></div>
+    <div class="stat-card s3"><div class="stat-num">2h</div><div class="stat-label">O'rtacha vaqt</div><div class="stat-since">Tez yetkazib berish</div></div>
+    <div class="stat-card s4"><div class="stat-num">3+</div><div class="stat-label">Yil tajriba</div><div class="stat-since">2023 yildan beri</div></div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="sec-wrap" id="services">
+  <div class="sec-header">
+    <div class="sec-tag">— Xizmatlar —</div>
+    <h2 class="sec-title">Nima qila olamiz?</h2>
+    <p class="sec-sub">AI yordamida har qanday kompyuter ishingizni tez va sifatli bajaramiz</p>
+  </div>
+  <div class="services-grid">
+    <div class="srv-card c1" onclick="openModal('excel')">
+      <div class="srv-ai-badge">🤖 AI</div>
+      <div class="srv-top"><div class="srv-icon">📊</div><div class="srv-arrow">→</div></div>
+      <div class="srv-name">Excel Hujjat</div>
+      <div class="srv-desc">AI avtomatik tayyorlaydi — jadval, formula, grafik, hisobot.</div>
+      <div class="srv-footer"><div class="srv-price">15 000 <span>so'mdan</span></div><div class="srv-time">⏱ 1-3 soat</div></div>
+    </div>
+    <div class="srv-card c2" onclick="openModal('word')">
+      <div class="srv-ai-badge">🤖 AI</div>
+      <div class="srv-top"><div class="srv-icon">📝</div><div class="srv-arrow">→</div></div>
+      <div class="srv-name">Word / Referat</div>
+      <div class="srv-desc">AI yozadi, inson uslubiga o'tkaziladi — to'liq tayyor hujjat.</div>
+      <div class="srv-footer"><div class="srv-price">20 000 <span>so'mdan</span></div><div class="srv-time">⏱ 2-5 soat</div></div>
+    </div>
+    <div class="srv-card c3" onclick="openModal('ppt')">
+      <div class="srv-ai-badge">🤖 AI</div>
+      <div class="srv-top"><div class="srv-icon">🖥️</div><div class="srv-arrow">→</div></div>
+      <div class="srv-name">PowerPoint</div>
+      <div class="srv-desc">AI kontentni tayyorlaydi, siz chiroyli dizaynda olasiz.</div>
+      <div class="srv-footer"><div class="srv-price">25 000 <span>so'mdan</span></div><div class="srv-time">⏱ 2-4 soat</div></div>
+    </div>
+    <div class="srv-card c4" onclick="openModal('ai')">
+      <div class="srv-top"><div class="srv-icon">🤖</div><div class="srv-arrow">→</div></div>
+      <div class="srv-name">AI → Inson Uslubi</div>
+      <div class="srv-desc">AI matnni o'qituvchi aniqlay olmaydigan darajaga o'tkazamiz.</div>
+      <div class="srv-footer"><div class="srv-price">10 000 <span>so'mdan</span></div><div class="srv-time">⏱ 30 daqiqa</div></div>
+    </div>
+    <div class="srv-card c5" onclick="openModal('other')">
+      <div class="srv-top"><div class="srv-icon">💡</div><div class="srv-arrow">→</div></div>
+      <div class="srv-name">Boshqa Xizmatlar</div>
+      <div class="srv-desc">PDF, sertifikat, tarjima va boshqa kompyuter ishlari.</div>
+      <div class="srv-footer"><div class="srv-price">10 000 <span>so'mdan</span></div><div class="srv-time">⏱ Kelishiladi</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="sec-wrap">
+  <div class="sec-header">
+    <div class="sec-tag">— Jarayon —</div>
+    <h2 class="sec-title">Qanday ishlaydi?</h2>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card"><div class="step-num">01</div><span class="step-icon">📋</span><div class="step-title">Buyurtma bering</div><div class="step-desc">Xizmatni tanlang, ma'lumot kiriting</div></div>
+    <div class="step-card"><div class="step-num">02</div><span class="step-icon">💳</span><div class="step-title">To'lovni amalga oshiring</div><div class="step-desc">Click yoki Paynet orqali karta raqamiga</div></div>
+    <div class="step-card"><div class="step-num">03</div><span class="step-icon">🤖</span><div class="step-title">AI ishlaydi</div><div class="step-desc">Buyurtma tushishi bilan AI tayyorlaydi</div></div>
+    <div class="step-card"><div class="step-num">04</div><span class="step-icon">✈️</span><div class="step-title">Telegram orqali</div><div class="step-desc">Tayyor fayl Telegramga yetkaziladi</div></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="sec-wrap">
+  <div class="sec-header">
+    <div class="sec-tag">— Mijozlar —</div>
+    <h2 class="sec-title">Ular nima deydi?</h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card"><div class="testi-stars">★★★★★</div><div class="testi-text">"Referatimni 3 soatda tayyor qilib berishdi. Sifati zo'r, o'qituvchim ham maqtadi!"</div><div class="testi-author"><div class="testi-avatar">👩‍🎓</div><div><div class="testi-name">Malika T.</div><div class="testi-role">Talaba, TATU</div></div></div></div>
+    <div class="testi-card"><div class="testi-stars">★★★★★</div><div class="testi-text">"Excel hujjatimni tushuntirishim ham qiyin edi lekin ular ajoyib qilib berishdi!"</div><div class="testi-author"><div class="testi-avatar">👨‍💼</div><div><div class="testi-name">Bobur K.</div><div class="testi-role">Tadbirkor</div></div></div></div>
+    <div class="testi-card"><div class="testi-stars">★★★★★</div><div class="testi-text">"PowerPoint taqdimotim juda chiroyli chiqdi. Barcha hamkasblarim hayron qoldi!"</div><div class="testi-author"><div class="testi-avatar">👩‍💻</div><div><div class="testi-name">Gulnora R.</div><div class="testi-role">O'qituvchi</div></div></div></div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section class="sec-wrap">
+  <div class="sec-header">
+    <div class="sec-tag">— Namunalar —</div>
+    <h2 class="sec-title">Bajarilgan ishlar</h2>
+    <p class="sec-sub">500+ ish natijalarini o'z ko'zingiz bilan ko'ring</p>
+  </div>
+  <a href="https://t.me/kompyordamm" target="_blank" class="portfolio-link">
+    <div class="portfolio-icon">📁</div>
+    <div>
+      <div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:4px">Ishlar namunalari</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Excel, Word, PowerPoint va boshqa bajarilgan ishlar</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#229ED9">✈️ @kompyordamm kanalini ko'rish →</div>
+    </div>
+  </a>
+</section>
+
+<!-- CTA -->
+<section class="sec-wrap">
+  <div class="cta-box">
+    <h2 class="cta-title">Hoziroq buyurtma bering!</h2>
+    <p class="cta-sub">Telegram orqali murojaat qiling — 5 daqiqada javob beramiz.</p>
+    <div class="cta-btns">
+      <a href="https://t.me/Jasurbek_Mansurbekovich" target="_blank" class="contact-pill tg">✈️ @Jasurbek_Mansurbekovich</a>
+      <button class="contact-pill gold-pill" onclick="openModal('excel')">📋 Buyurtma berish</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">KompYordam</div>
+  <div class="footer-copy">© 2023–2026 KompYordam. Barcha huquqlar himoyalangan.</div>
+  <div class="footer-since">🇺🇿 Since 2023 · Toshkent</div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Buyurtma</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// SERVICES CONFIG
+const SERVICES = {
+  excel:{ title:'📊 Excel Hujjat', price:15000, fields:[
+    {id:'desc',label:"Nima kerak? *",type:'textarea',placeholder:"Masalan: 30 ta o'quvchi uchun baholar jadvali, avtomatik hisoblash bilan..."},
+    {id:'phone',label:"Telegram/Telefon *",type:'input',placeholder:"+998 90 000 00 00"}
+  ]},
+  word:{ title:'📝 Word / Referat', price:20000, fields:[
+    {id:'topic',label:"Mavzu *",type:'input',placeholder:"Masalan: O'zbekistonda iqtisodiy islohotlar"},
+    {id:'pages',label:"Hajm",type:'select',options:["5-10 bet","10-20 bet","20-30 bet","30+ bet"]},
+    {id:'extra',label:"Qo'shimcha talablar",type:'textarea',placeholder:"Adabiyotlar soni, formatlash talablari..."},
+    {id:'phone',label:"Telegram/Telefon *",type:'input',placeholder:"+998 90 000 00 00"}
+  ]},
+  ppt:{ title:'🖥️ PowerPoint', price:25000, fields:[
+    {id:'topic',label:"Mavzu *",type:'input',placeholder:"Masalan: Sun'iy intellekt va kelajak"},
+    {id:'slides',label:"Slaydlar soni",type:'select',options:["10-15 ta","15-20 ta","20-30 ta"]},
+    {id:'style',label:"Dizayn uslubi",type:'select',options:["Zamonaviy","Klassik / Rasmiy","Yorqin / Ijodiy"]},
+    {id:'phone',label:"Telegram/Telefon *",type:'input',placeholder:"+998 90 000 00 00"}
+  ]},
+  ai:{ title:'🤖 AI → Inson Uslubi', price:10000, fields:[
+    {id:'aitext',label:"AI yozgan matn *",type:'textarea',placeholder:"ChatGPT yoki Gemini yozgan matningizni shu yerga joylashtiring..."},
+    {id:'style',label:"Uslub",type:'select',options:["Talaba uslubi","Rasmiy hujjat","Oddiy suhbat","Ilmiy maqola"]},
+    {id:'phone',label:"Telegram/Telefon *",type:'input',placeholder:"+998 90 000 00 00"}
+  ]},
+  other:{ title:'💡 Boshqa Xizmat', price:10000, fields:[
+    {id:'desc',label:"Nima kerak? *",type:'textarea',placeholder:"Xizmat turini batafsil yozing..."},
+    {id:'phone',label:"Telegram/Telefon *",type:'input',placeholder:"+998 90 000 00 00"}
+  ]}
+};
+
+// SERVER URL - Render.com deploy qilgandan keyin o'zgartiring!
+const SERVER_URL = 'https://kompyordam-server.onrender.com';
+const CARD_NUM = "9860 0266 0137 8321";
+const CARD_OWNER = "Maxammataliyev Jasurbek";
+
+let currentType='', aiContent='', orderData={};
+
+// CURSOR
+const cursor=document.getElementById('cursor'), ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx-6+'px';cursor.style.top=my-6+'px'});
+(function animateRing(){rx+=(mx-rx)*0.12;ry+=(my-ry)*0.12;ring.style.left=rx-18+'px';ring.style.top=ry-18+'px';requestAnimationFrame(animateRing)})();
+document.querySelectorAll('button,a,.srv-card,.stat-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.style.transform='scale(2.5)';ring.style.opacity='0.3'});
+  el.addEventListener('mouseleave',()=>{cursor.style.transform='scale(1)';ring.style.opacity='0.5'});
+});
+
+// MODAL
+function openModal(type){
+  currentType=type; aiContent=''; orderData={};
+  document.getElementById('modalTitle').textContent=SERVICES[type].title;
+  renderStep1();
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+
+function stepsHtml(active){
+  return `<div class="modal-steps">
+    ${[["1️⃣","Ma'lumot"],["2️⃣","To'lov"],["3️⃣","Natija"]].map(([n,t],i)=>`
+      <div class="modal-step ${i+1<active?'done':i+1===active?'active':''}">
+        <span class="modal-step-num">${i+1<active?'✅':n}</span>${t}
+      </div>`).join('')}
+  </div>`;
+}
+
+// STEP 1
+function renderStep1(){
+  const s=SERVICES[currentType];
+  const fHtml=s.fields.map(f=>{
+    if(f.type==='textarea') return `<div class="field"><label>${f.label}</label><textarea id="f_${f.id}" placeholder="${f.placeholder||''}"></textarea></div>`;
+    if(f.type==='select') return `<div class="field"><label>${f.label}</label><select id="f_${f.id}">${f.options.map(o=>`<option>${o}</option>`).join('')}</select></div>`;
+    return `<div class="field"><label>${f.label}</label><input type="text" id="f_${f.id}" placeholder="${f.placeholder||''}"></div>`;
+  }).join('');
+  document.getElementById('modalBody').innerHTML=stepsHtml(1)+fHtml+`<button class="submit-btn" onclick="goStep2()">Davom etish →</button>`;
+}
+
+// STEP 2 - Payment
+function goStep2(){
+  const s=SERVICES[currentType];
+  s.fields.forEach(f=>{
+    const el=document.getElementById('f_'+f.id);
+    if(el) orderData[f.id]=el.tagName==='SELECT'?el.options[el.selectedIndex].text:el.value?.trim()||'';
+  });
+  if(!orderData.phone||orderData.phone.length<9){showToast('⚠️ Telefon raqamni kiriting!','error');return;}
+  document.getElementById('modalBody').innerHTML=stepsHtml(2)+`
+    <div class="payment-box">
+      <div class="payment-title">💳 To'lov ma'lumotlari</div>
+      <div class="card-display">
+        <div class="card-number">${CARD_NUM}</div>
+        <div class="card-owner">${CARD_OWNER}</div>
+      </div>
+      <div class="amount-display">
+        <span>To'lov miqdori</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="amount-val">${s.price.toLocaleString()} so'm</span>
+          <button class="copy-btn" onclick="navigator.clipboard.writeText('${CARD_NUM.replace(/\s/g,'')}');showToast('📋 Karta nusxa olindi!','success')">📋 Nusxa</button>
+        </div>
+      </div>
+      <div style="height:12px"></div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;text-align:center">Quyidagi ilovalar orqali to'lang:</div>
+      <div class="payment-apps">
+        <button class="pay-app-btn click-btn" onclick="showToast('💳 Click ilovasini oching','success');setTimeout(()=>window.open('https://click.uz','_blank'),800)">💳 Click</button>
+        <button class="pay-app-btn paynet-btn" onclick="showToast('💳 Paynet ilovasini oching','success');setTimeout(()=>window.open('https://paynet.uz','_blank'),800)">💳 Paynet</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>To'langan summa *</label>
+      <input type="number" id="paidAmount" placeholder="${s.price}">
+    </div>
+    <div class="field">
+      <label>To'lov screenshoti (ixtiyoriy)</label>
+      <div class="screenshot-upload" onclick="document.getElementById('ssFile').click()">
+        <input type="file" id="ssFile" accept="image/*" onchange="if(this.files[0]){const r=new FileReader();r.onload=e=>document.getElementById('ssPreview').innerHTML='<img src=\\''+e.target.result+'\\' style=\\'max-width:100%;border-radius:8px;max-height:130px\\'>';r.readAsDataURL(this.files[0])}">
+        <div id="ssPreview" style="font-size:13px;color:var(--text2)">📸 Screenshot yuklash uchun bosing</div>
+      </div>
+    </div>
+    <button class="submit-btn" onclick="goStep3()">To'lov qildim ✓</button>`;
+}
+
+// STEP 3 - AI Process
+async function goStep3(){
+  const paidAmt=document.getElementById('paidAmount')?.value;
+  if(!paidAmt||parseInt(paidAmt)<1000){showToast('⚠️ To\'lov summasini kiriting!','error');return;}
+  orderData.paidAmount=paidAmt;
+
+  const ssFile=document.getElementById('ssFile');
+  const ssFileData=ssFile?.files[0]||null;
+
+  document.getElementById('modalBody').innerHTML=stepsHtml(3)+`
+    <div class="ai-loading show" id="aiLoader">
+      <div class="ai-dots"><span></span><span></span><span></span></div>
+      <span id="aiStatus">📨 Buyurtma yuborilmoqda...</span>
+    </div>
+    <div class="ai-result-box" id="aiResult"></div>
+    <div id="downloadArea"></div>
+    <button class="submit-btn green-btn" id="finalBtn" style="display:none;margin-top:14px" onclick="showToast('✅ Rahmat! Buyurtmangiz qabul qilindi 🚀','success');setTimeout(closeModal,1500)">✅ Yopish</button>`;
+
+  const statusEl=document.getElementById('aiStatus');
+  const loader=document.getElementById('aiLoader');
+  const resultBox=document.getElementById('aiResult');
+  const downloadArea=document.getElementById('downloadArea');
+  const finalBtn=document.getElementById('finalBtn');
+
+  try {
+    // Send order to server
+    const fd=new FormData();
+    fd.append('orderType',currentType);
+    fd.append('phone',orderData.phone||'');
+    fd.append('paidAmount',orderData.paidAmount||'');
+    Object.entries(orderData).forEach(([k,v])=>{if(k!=='phone'&&k!=='paidAmount')fd.append(k,v);});
+    if(ssFileData) fd.append('screenshot',ssFileData);
+    await fetch(SERVER_URL+'/api/order',{method:'POST',body:fd}).catch(e=>console.log('order err',e));
+
+    // AI processing
+    if(currentType==='ai'){
+      statusEl.textContent='🤖 AI matnni tabiiy uslubga o\'tkazmoqda...';
+      const styleMap={'Talaba uslubi':'talaba','Rasmiy hujjat':'rasmiy','Oddiy suhbat':'oddiy','Ilmiy maqola':'ilmiy'};
+      const res=await fetch(SERVER_URL+'/api/humanize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:orderData.aitext,style:styleMap[orderData.style]||'talaba'})});
+      const data=await res.json();
+      if(data.success&&data.content){
+        aiContent=data.content;
+        resultBox.textContent=aiContent;
+        resultBox.classList.add('show');
+        downloadArea.innerHTML=`<button onclick="navigator.clipboard.writeText(document.getElementById('aiResult').textContent);showToast('📋 Nusxa olindi!','success')" style="width:100%;background:linear-gradient(135deg,var(--teal),#00b87a);color:#0d0f1a;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-top:12px">📋 Natijani nusxa olish</button>`;
+      }
+    } else if(currentType==='word'){
+      statusEl.textContent='📝 Word hujjat yaratilmoqda... (1-3 daqiqa)';
+      const wf=new FormData();
+      wf.append('topic',orderData.topic||orderData.desc||'');
+      wf.append('pages',orderData.pages||'10-15 bet');
+      wf.append('extra',orderData.extra||'');
+      wf.append('phone',orderData.phone||'');
+      const res=await fetch(SERVER_URL+'/api/create/word',{method:'POST',body:wf});
+      if(res.ok){
+        const blob=await res.blob();
+        const url=URL.createObjectURL(blob);
+        downloadArea.innerHTML=`<a href="${url}" download="referat.docx" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:linear-gradient(135deg,#2563eb,#1a5fcc);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:800;text-decoration:none;margin-top:12px">📥 Word faylni yuklab olish</a>`;
+      } else throw new Error('Word fayl yaratishda xatolik');
+    } else if(currentType==='excel'){
+      statusEl.textContent='📊 Excel hujjat yaratilmoqda... (1-3 daqiqa)';
+      const ef=new FormData();
+      ef.append('description',orderData.desc||'');
+      ef.append('phone',orderData.phone||'');
+      if(ssFileData) ef.append('image',ssFileData);
+      const res=await fetch(SERVER_URL+'/api/create/excel',{method:'POST',body:ef});
+      if(res.ok){
+        const blob=await res.blob();
+        const url=URL.createObjectURL(blob);
+        downloadArea.innerHTML=`<a href="${url}" download="excel_hujjat.xlsx" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:linear-gradient(135deg,var(--green),#00b87a);color:#0d0f1a;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:800;text-decoration:none;margin-top:12px">📥 Excel faylni yuklab olish</a>`;
+      } else throw new Error('Excel fayl yaratishda xatolik');
+    } else if(currentType==='ppt'){
+      statusEl.textContent='🖥️ PowerPoint yaratilmoqda... (1-3 daqiqa)';
+      const pf=new FormData();
+      pf.append('topic',orderData.topic||'');
+      pf.append('slides',orderData.slides||'12 ta');
+      pf.append('style',orderData.style||'Zamonaviy');
+      pf.append('phone',orderData.phone||'');
+      const res=await fetch(SERVER_URL+'/api/create/pptx',{method:'POST',body:pf});
+      if(res.ok){
+        const blob=await res.blob();
+        const url=URL.createObjectURL(blob);
+        downloadArea.innerHTML=`<a href="${url}" download="taqdimot.pptx" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0d0f1a;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:800;text-decoration:none;margin-top:12px">📥 PowerPoint faylni yuklab olish</a>`;
+      } else throw new Error('PowerPoint yaratishda xatolik');
+    } else {
+      resultBox.textContent="✅ Buyurtmangiz qabul qilindi! Tez orada Telegram orqali bog'lanamiz.";
+      resultBox.classList.add('show');
+    }
+
+    loader.classList.remove('show');
+    finalBtn.style.display='block';
+    showToast('✅ Tayyor! Telegram orqali ham xabar yuborildi 📨','success');
+
+  } catch(e) {
+    loader.classList.remove('show');
+    resultBox.textContent='❌ Xatolik: '+e.message+'\n\nIltimos Telegram orqali murojaat qiling: @Jasurbek_Mansurbekovich';
+    resultBox.classList.add('show');
+    finalBtn.style.display='block';
+    showToast('⚠️ Server xatosi — Telegram orqali murojaat qiling','error');
+  }
+}
+
+function showToast(msg,type='success'){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),4000);
+}
+
+// Scroll animation
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.style.animationPlayState='running'});},{threshold:0.1});
+document.querySelectorAll('.stat-card,.srv-card,.step-card,.testi-card').forEach((el,i)=>{
+  el.style.animationDelay=(i*0.08)+'s';
+  el.style.animationPlayState='paused';
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
